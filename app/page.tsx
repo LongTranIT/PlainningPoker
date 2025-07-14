@@ -1,47 +1,46 @@
 "use client";
-import dynamic from "next/dynamic";
+
 import { useState } from "react";
-import { useSessionStore, SessionState } from "@/store/sessionStore";
-const Login = dynamic<{ onLogin: () => void }>(
-  () => import("./(components)/Login"),
-  { ssr: false }
-);
-const SessionEntry = dynamic<{ onEnterSession: () => void }>(
-  () => import("./(components)/SessionEntry"),
-  { ssr: false }
-);
-const Lobby = dynamic<{ onStart: () => void }>(
-  () => import("./(components)/Lobby"),
-  { ssr: false }
-);
-const PokerRoom = dynamic<{ onBackToLobby: () => void }>(
-  () => import("./(components)/PokerRoom"),
-  { ssr: false }
-);
+import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { usePokerStore } from "@/store/usePokerStore";
 
 export default function Home() {
-  const user = useSessionStore((s: SessionState) => s.user);
-  const session = useSessionStore((s: SessionState) => s.session);
-  const [stage, setStage] = useState<"login" | "entry" | "lobby" | "poker">(
-    "login"
-  );
+  const router = useRouter();
+  const { setRoomId, setUser } = usePokerStore();
+  const [name, setName] = useState<string>("");
+  const [room, setRoom] = useState<string>("");
 
-  // Progression logic
-  if (!user) {
-    if (stage !== "login") setStage("login");
-    return <Login onLogin={() => setStage("entry")} />;
-  }
-  if (!session) {
-    if (stage !== "entry") setStage("entry");
-    return <SessionEntry onEnterSession={() => setStage("lobby")} />;
-  }
-  if (session && !session.roundActive) {
-    if (stage !== "lobby") setStage("lobby");
-    return <Lobby onStart={() => setStage("poker")} />;
-  }
-  if (session && session.roundActive) {
-    if (stage !== "poker") setStage("poker");
-    return <PokerRoom onBackToLobby={() => setStage("lobby")} />;
-  }
-  return null;
+  const handleJoin = () => {
+    if (!name || !room) {
+      alert("Please enter your name and room ID!");
+      return;
+    }
+
+    setRoomId(room);
+    setUser(name);
+    router.push(`/room/${room}`);
+  };
+
+  return (
+    <main className="flex flex-col items-center justify-center h-screen space-y-4">
+      <h1 className="text-3xl font-bold">Scrum Planning Poker</h1>
+      <Input
+        placeholder="Your name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="w-64"
+      />
+      <Input
+        placeholder="Room ID"
+        value={room}
+        onChange={(e) => setRoom(e.target.value)}
+        className="w-64"
+      />
+      <Button className="w-64" onClick={handleJoin}>
+        Join Room
+      </Button>
+    </main>
+  );
 }
