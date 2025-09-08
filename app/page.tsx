@@ -10,6 +10,7 @@ import { db, ref, set } from "@/lib/firebase";
 import { dbPaths, generateId } from "@/lib/utils";
 import { DEFAULT_CARD_SET, Player, Room } from "@/model/room";
 import { useRoomStore } from "@/store/roomStore";
+import { ROUTES } from "./routes";
 
 export default function Home() {
   const router = useRouter();
@@ -75,7 +76,7 @@ export default function Home() {
       setRoom(room);
 
       // Navigate to room
-      await router.push(`/room/${roomId}`);
+      await router.push(ROUTES.ROOM_DETAIL(roomId));
     } catch (error) {
       console.error("Error joining room:", error);
       alert("Failed to join room. Please try again.");
