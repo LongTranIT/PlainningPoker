@@ -8,3 +8,11 @@ export const cn = (...inputs: ClassValue[]) => {
 export const generateId = () => {
   return crypto.randomUUID();
 };
+
+export const dbPaths = {
+  room: (roomId: string) => `rooms/${roomId}`,
+  players: (roomId: string) => `rooms/${roomId}/players`,
+  player: (roomId: string, playerId: string) =>
+    `rooms/${roomId}/players/${playerId}`,
+  vote: (playerId: string) => `players/${playerId}/vote`,
+};

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { AvatarPicker } from "@/components/AvatarPicker";
 import { useUserStore } from "@/store/userStore";
 import { db, ref, set } from "@/lib/firebase";
-import { generateId } from "@/lib/utils";
+import { dbPaths, generateId } from "@/lib/utils";
 import { DEFAULT_CARD_SET, Player, Room } from "@/model/room";
 import { useRoomStore } from "@/store/roomStore";
 
@@ -45,7 +45,8 @@ export default function Home() {
 
       // Initialize room data
       const roomId = generateId();
-      const roomRef = ref(db, `rooms/${roomId}`);
+
+      const roomRef = ref(db, dbPaths.room(roomId));
       const now = new Date().toISOString();
 
       const adminPlayer: Player = {

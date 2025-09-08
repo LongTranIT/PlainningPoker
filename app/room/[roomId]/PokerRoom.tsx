@@ -10,6 +10,7 @@ import { listenRoom, useRoomStore } from "@/store/roomStore";
 import { useUserStore } from "@/store/userStore";
 import { Player } from "@/model/room";
 import { toast } from "sonner";
+import { dbPaths } from "@/lib/utils";
 
 interface PokerRoomProps {
   roomId: string;
@@ -48,7 +49,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
       return;
     }
     try {
-      const playerRef = ref(db, `rooms/${roomId}/players/${userInfo.id}`);
+      const playerRef = ref(db, dbPaths.player(roomId, userInfo.id));
       await update(playerRef, { vote: point });
     } catch (error) {
       toast.error("Failed to submit vote: " + error);
@@ -59,7 +60,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
   const revealVotes = async () => {
     if (!userPlayer?.isAdmin) return;
     try {
-      await update(ref(db, `rooms/${roomId}`), { isRevealed: true });
+      await update(ref(db, dbPaths.room(roomId)), { isRevealed: true });
     } catch (error) {
       toast.error("Failed to reveal votes: " + error);
       throw error;
@@ -68,8 +69,8 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
 
   const resetRound = async () => {
     try {
-      const roomRef = ref(db, `rooms/${roomId}`);
-      const snapshot = await get(ref(db, `rooms/${roomId}/players`));
+      const roomRef = ref(db, dbPaths.room(roomId));
+      const snapshot = await get(ref(db, dbPaths.players(roomId)));
 
       const updates: Record<string, boolean | null> = {
         isRevealed: false,
@@ -77,7 +78,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
 
       if (snapshot.exists()) {
         Object.keys(snapshot.val()).forEach((uid) => {
-          updates[`players/${uid}/vote`] = null;
+          updates[dbPaths.vote(uid)] = null;
         });
       }
 
@@ -90,7 +91,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
 
   const addPlayer = async (playerId: string, name: string, avatar: string) => {
     try {
-      const playerRef = ref(db, `rooms/${roomId}/players/${playerId}`);
+      const playerRef = ref(db, dbPaths.player(roomId, playerId));
       const snapshot = await get(playerRef);
 
       if (snapshot.exists()) {
