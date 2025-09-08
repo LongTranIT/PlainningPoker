@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AvatarPicker } from "@/components/AvatarPicker";
-import { saveUserInfo } from "@/lib/localStorage";
+import { useUserStore } from "@/store/userStore";
 
 interface Props {
   open: boolean;
@@ -21,6 +21,7 @@ interface Props {
 export function UserInfoDialog({ open, onSave }: Props) {
   const [name, setName] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState("");
+  const setUserInfo = useUserStore((state) => state.setUserInfo);
 
   const handleSave = async () => {
     if (!name || !selectedAvatar) {
@@ -29,13 +30,13 @@ export function UserInfoDialog({ open, onSave }: Props) {
     }
 
     // Save user info
-    await saveUserInfo(name, selectedAvatar);
+    await setUserInfo(name, selectedAvatar);
     onSave(name, selectedAvatar);
   };
 
   return (
-    <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={open}>
+      <DialogContent className="sm:max-w-md" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>Welcome to Planning Poker</DialogTitle>
           <DialogDescription>
