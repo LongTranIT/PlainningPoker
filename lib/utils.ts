@@ -16,3 +16,7 @@ export const dbPaths = {
     `rooms/${roomId}/players/${playerId}`,
   vote: (playerId: string) => `players/${playerId}/vote`,
 };
+
+export const nameOfFactory = <T>() => {
+  return <K extends keyof T>(key: K) => key;
+};

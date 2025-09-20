@@ -18,4 +18,14 @@ export interface Room {
   players: Record<string, Player>;
 }
 
-export const DEFAULT_CARD_SET = ["1", "2", "3", "5", "8", "13", "?"];
+export const DEFAULT_CARD_SET = [
+  "0",
+  "1",
+  "2",
+  "3",
+  "5",
+  "8",
+  "13",
+  "21",
+  "☕",
+];

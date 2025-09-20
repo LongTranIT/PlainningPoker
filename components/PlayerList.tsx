@@ -1,5 +1,7 @@
-import { Card } from "@/components/ui/card";
-import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { PokerCard } from "./PokerCard";
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface Player {
   name: string;
@@ -14,33 +16,89 @@ interface Props {
   isRevealed: boolean;
 }
 
-export const PlayerList = ({ players, isRevealed }: Props) => {
-  return (
-    <div className="grid grid-cols-2 gap-4">
-      {Object.entries(players).map(([userId, player]) => (
-        <Card key={userId} className="p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 overflow-hidden rounded-full bg-gray-100">
-              <Image
-                src={`${player.avatar}`}
-                alt={`${player.name}'s avatar`}
-                width={40}
-                height={40}
-                className="object-cover"
-              />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-medium">{player.name}</span>
-              {player.isObserver && (
-                <span className="text-sm text-gray-500">(Observer)</span>
-              )}
-            </div>
-          </div>
-          <span className="text-xl font-bold">
-            {isRevealed ? player.vote || "-" : player.vote ? "🤫" : "-"}
-          </span>
-        </Card>
-      ))}
+const PlayerAvatar = ({
+  player,
+  isRevealed,
+}: {
+  player: Player;
+  isRevealed: boolean;
+}) => (
+  <div className="flex flex-col items-center group">
+    <div className="mb-2">
+      <PokerCard
+        point={player.vote ? (isRevealed ? player.vote : "🤫") : ""}
+        active={!!player.vote}
+        width={40}
+        readOnly
+      />
     </div>
+    <div className="relative">
+      <div className="w-12 h-12">
+        <Avatar className="w-full h-full rounded-full">
+          <AvatarImage
+            src={`/avatars/1.jpg`}
+            className="w-full h-full object-cover rounded-full"
+            alt={`${player.name}'s avatar`}
+          />
+          <AvatarFallback className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center text-sm text-gray-600 font-bold">
+            {player.name
+              .split(" ")
+              .map((word) => word[0])
+              .join("")
+              .substring(0, 2)
+              .toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+      </div>
+      <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap">
+        {player.name}
+      </span>
+    </div>
+  </div>
+);
+
+export const PlayerList = ({ players, isRevealed }: Props) => {
+  const playerEntries = Object.entries(players);
+  const [count, setCount] = useState(10);
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setCount((prev) => {
+  //       const dir = Math.random() > 0.5 ? 1 : -1; // random tăng hoặc giảm
+  //       const next = prev + dir;
+  //       return next;
+  //     });
+  //   }, 3000);
+
+  //   return () => clearInterval(interval);
+  // }, [playerEntries.length]);
+
+  return (
+    <motion.div
+      layout
+      className="
+        relative mx-auto mt-8 mb-8
+        flex flex-wrap justify-center gap-12 w-[60%]
+        max-sm:w-[90vw] max-sm:flex-nowrap max-sm:justify-start
+        max-sm:overflow-x-auto max-sm:pb-8
+      "
+    >
+      <AnimatePresence>
+        {[...Array(count)].map(() =>
+          playerEntries.map(([userId, player]) => (
+            <motion.div
+              key={userId}
+              layout
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <PlayerAvatar player={player} isRevealed={isRevealed} />
+            </motion.div>
+          ))
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
