@@ -1,6 +1,6 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, XAxis } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -51,12 +51,6 @@ export const PokerChartBar = ({ chartData }: PokerChartBarProps) => {
               />
             );
           })}
-          <LabelList
-            position="top"
-            offset={12}
-            className="fill-foreground"
-            fontSize={12}
-          />
         </Bar>
       </BarChart>
     </ChartContainer>

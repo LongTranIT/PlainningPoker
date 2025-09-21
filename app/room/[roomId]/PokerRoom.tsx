@@ -150,7 +150,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
 
       <div className="min-h-screen bg-[#F8F9FE] flex flex-col">
         {/* Header */}
-        <header className="bg-white p-4 shadow-sm flex justify-between items-center">
+        <header className="bg-white py-4 px-10 shadow-sm flex justify-between items-center">
           <div className="flex items-center gap-4">
             <h2 className="text-lg font-semibold">
               {room?.name || "Planning Poker"}
@@ -166,7 +166,10 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
           </div>
           {userInfo && (
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
+              <div
+                className="w-36 flex items-center gap-2 cursor-pointer hover:opacity-80 hover:bg-gradient-to-b "
+                onClick={() => setUserDialogVisibility(true)}
+              >
                 <Avatar className="w-10 h-10 ">
                   <AvatarImage
                     src={`/avatars/1.jpg`}
@@ -182,7 +185,9 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
                       .toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <span className="font-medium">{userInfo.name}</span>
+                <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                  {userInfo.name}
+                </span>
               </div>
             </div>
           )}
@@ -213,6 +218,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
                   }
                 }}
                 readonly={!userPlayer?.isAdmin || !isRoomVoted}
+                variant={isRoomVoted ? "linear" : "conic"}
               />
               <PlayerList
                 players={room?.players || {}}
