@@ -1,6 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { PokerCard } from "./PokerCard";
-import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 interface Player {
@@ -36,7 +35,7 @@ const PlayerAvatar = ({
       <div className="w-12 h-12">
         <Avatar className="w-full h-full rounded-full">
           <AvatarImage
-            src={`/avatars/1.jpg`}
+            src={player.avatar}
             className="w-full h-full object-cover rounded-full"
             alt={`${player.name}'s avatar`}
           />
@@ -50,7 +49,11 @@ const PlayerAvatar = ({
           </AvatarFallback>
         </Avatar>
       </div>
-      <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap">
+      <span
+        className="absolute -bottom-5 left-1/2 -translate-x-1/2 
+             text-xs font-medium whitespace-nowrap 
+             overflow-hidden text-ellipsis max-w-[80px] text-center"
+      >
         {player.name}
       </span>
     </div>
@@ -59,7 +62,7 @@ const PlayerAvatar = ({
 
 export const PlayerList = ({ players, isRevealed }: Props) => {
   const playerEntries = Object.entries(players);
-  const [count, setCount] = useState(10);
+  // const [count, setCount] = useState(10);
 
   // useEffect(() => {
   //   const interval = setInterval(() => {
@@ -84,20 +87,20 @@ export const PlayerList = ({ players, isRevealed }: Props) => {
       "
     >
       <AnimatePresence>
-        {[...Array(count)].map(() =>
-          playerEntries.map(([userId, player]) => (
-            <motion.div
-              key={userId}
-              layout
-              initial={{ opacity: 0, scale: 0.8, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.8, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <PlayerAvatar player={player} isRevealed={isRevealed} />
-            </motion.div>
-          ))
-        )}
+        {/* {[...Array(count)].map(() => */}
+        {playerEntries.map(([userId, player]) => (
+          <motion.div
+            key={userId}
+            layout
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <PlayerAvatar player={player} isRevealed={isRevealed} />
+          </motion.div>
+        ))}
+        {/* )} */}
       </AnimatePresence>
     </motion.div>
   );

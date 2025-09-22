@@ -24,14 +24,6 @@ interface PokerRoomProps {
   roomId: string;
 }
 
-const chartData: PokerChartData[] = [
-  { Point: "1", Count: 2 },
-  { Point: "2", Count: 5 },
-  { Point: "3", Count: 3 },
-  { Point: "5", Count: 2 },
-  { Point: "☕", Count: 1 },
-];
-
 export function PokerRoom({ roomId }: PokerRoomProps) {
   const { room, getIsRevealed, getPlayer } = useRoomStore();
   const { hydrated, userInfo, setUserInfo } = useUserStore();
@@ -59,6 +51,25 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
     if (!room) return false;
     // Check if any player has voted
     return Object.values(room.players).some((player) => player?.vote);
+  }, [room]);
+
+  const players = useMemo(() => {
+    if (!room) return [];
+    return Object.values(room.players);
+  }, [room]);
+
+  const chartData: PokerChartData[] = useMemo(() => {
+    if (!room) return [];
+    const voteCount: Record<string, number> = {};
+    Object.values(room.players).forEach((player) => {
+      if (player.vote) {
+        voteCount[player.vote] = (voteCount[player.vote] || 0) + 1;
+      }
+    });
+    return Object.entries(voteCount).map(([point, count]) => ({
+      Point: point,
+      Count: count,
+    }));
   }, [room]);
 
   const vote = async (point: string | null) => {
@@ -185,7 +196,10 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
                       .toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                <span
+                  className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 
+             overflow-hidden text-ellipsis whitespace-nowrap max-w-[120px]"
+                >
                   {userInfo.name}
                 </span>
               </div>
@@ -194,7 +208,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
         </header>
         <main className="flex-1 p-8 flex justify-center relative pb-40">
           <div className="absolute top-0 left-6 max-h-[80vh] overflow-y-auto hidden sm:block">
-            <PlayerStatusList />
+            <PlayerStatusList players={players} isRevealed={isRevealed} />
           </div>
           {/* Voting Area */}
           <div className="mb-12">
