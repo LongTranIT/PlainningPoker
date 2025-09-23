@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useUserStore } from "@/store/userStore";
-import { db, ref, set } from "@/lib/firebase";
+import { db, get, ref, set, update } from "@/lib/firebase";
 import { dbPaths, generateId } from "@/lib/utils";
 import { DEFAULT_CARD_SET, Player, Room } from "@/model/room";
 import { useRoomStore } from "@/store/roomStore";
@@ -15,16 +15,20 @@ import { cardData } from "@/model/avatar";
 import PokerHeading from "@/components/PokerHeading";
 import { Label } from "@/components/ui/label";
 import clsx from "clsx";
+import { ObserverSwitch } from "@/components/ObserverSwitch";
 
 export default function Home() {
   const router = useRouter();
   const [userName, setUserName] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState("");
+  const [isObserver, setIsObserver] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
   const [bgColor, setBgColor] = useState("bg-white");
   const { userInfo, setUserInfo } = useUserStore();
   const { setRoom } = useRoomStore();
-
+  const searchParams = useSearchParams();
+  const redirectRoomId = searchParams.get("redirect");
+  console.log("redirect", redirectRoomId);
   useEffect(() => {
     if (userInfo) {
       setUserName(userInfo.name);
@@ -47,38 +51,60 @@ export default function Home() {
         userInfo.avatar !== selectedAvatar
           ? setUserInfo(userName, selectedAvatar)
           : userInfo;
+      const roomId = redirectRoomId || generateId();
 
-      // Initialize room data
-      const roomId = generateId();
+      if (redirectRoomId) {
+        const playerRef = ref(db, dbPaths.player(roomId, finalUser.id));
+        const snapshot = await get(playerRef);
 
-      const roomRef = ref(db, dbPaths.room(roomId));
-      const now = new Date().toISOString();
+        if (snapshot.exists()) {
+          update(playerRef, {
+            name: finalUser.name,
+            avatar: finalUser.avatar,
+          });
+        }
+        const now = new Date().toISOString();
 
-      const adminPlayer: Player = {
-        id: finalUser.id,
-        name: finalUser.name,
-        avatar: finalUser.avatar,
-        vote: null,
-        isAdmin: true,
-        isObserver: false,
-        joinedAt: now,
-      };
+        const player: Player = {
+          id: finalUser.id,
+          name: finalUser.name,
+          avatar: finalUser.avatar,
+          vote: null,
+          isAdmin: false,
+          isObserver: false,
+          joinedAt: now,
+        };
+        await set(playerRef, player);
+      } else {
+        // Initialize room data
+        const roomRef = ref(db, dbPaths.room(roomId));
+        const now = new Date().toISOString();
 
-      const room: Room = {
-        roomId: roomId,
-        name: "Planning Poker",
-        createdAt: now,
-        players: {
-          [adminPlayer.id]: adminPlayer,
-        },
-        createdBy: adminPlayer.id,
-        isRevealed: false,
-        cardSet: DEFAULT_CARD_SET,
-      };
+        const adminPlayer: Player = {
+          id: finalUser.id,
+          name: finalUser.name,
+          avatar: finalUser.avatar,
+          vote: null,
+          isAdmin: true,
+          isObserver: false,
+          joinedAt: now,
+        };
 
-      await set(roomRef, room);
-      setRoom(room);
+        const room: Room = {
+          roomId: roomId,
+          name: "Planning Poker",
+          createdAt: now,
+          players: {
+            [adminPlayer.id]: adminPlayer,
+          },
+          createdBy: adminPlayer.id,
+          isRevealed: false,
+          cardSet: DEFAULT_CARD_SET,
+        };
 
+        await set(roomRef, room);
+        setRoom(room);
+      }
       // Navigate to room
       await router.push(ROUTES.ROOM_DETAIL(roomId));
     } catch (error) {
@@ -107,6 +133,29 @@ export default function Home() {
           className="w-64"
         />
       </div>
+      <div className="flex w-[80%] md:w-[40%] justify-around items-center">
+        <Label htmlFor="name">User Mode</Label>
+        <div className="w-64 flex items-center gap-3">
+          <ObserverSwitch
+            checked={isObserver}
+            onCheckedChange={(checked) => {
+              setIsObserver(checked);
+            }}
+          />
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-2 h-2 rounded-full ${
+                isObserver ? "bg-blue-500" : "bg-green-500"
+              }`}
+            />
+            <span className="text-sm text-muted-foreground">
+              {isObserver
+                ? "Participate without voting"
+                : "Participate in voting"}
+            </span>
+          </div>
+        </div>
+      </div>
       <Carousel
         className="w-[90%] md:w-[60%] h-[70%]"
         cardData={cardData}
@@ -132,7 +181,11 @@ export default function Home() {
         onClick={handleJoin}
         disabled={!userName || !selectedAvatar || isJoining}
       >
-        {isJoining ? "Joining..." : "Create Room"}
+        {isJoining
+          ? "Joining..."
+          : redirectRoomId
+          ? "Join Room"
+          : "Create Room"}
       </Button>
     </main>
   );

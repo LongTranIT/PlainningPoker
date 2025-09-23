@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { db, ref, update, set, get } from "@/lib/firebase";
 import { PokerCard } from "@/components/PokerCard";
 import { PlayerList } from "@/components/PlayerList";
-import { UserInfoDialog } from "@/components/UserInfoDialog";
 import { listenRoom, useRoomStore } from "@/store/roomStore";
 import { useUserStore } from "@/store/userStore";
 import { Player } from "@/model/room";
@@ -19,15 +18,16 @@ import { AnimatePresence, motion } from "framer-motion";
 import { PokerChartData } from "@/model/chart";
 import Realistic from "react-canvas-confetti/dist/presets/realistic";
 import { LiveClock } from "@/components/ui/clock";
+import { useRouter } from "next/navigation";
 
 interface PokerRoomProps {
   roomId: string;
 }
 
 export function PokerRoom({ roomId }: PokerRoomProps) {
+  const router = useRouter();
   const { room, getIsRevealed, getPlayer } = useRoomStore();
-  const { hydrated, userInfo, setUserInfo } = useUserStore();
-  const [userDialogVisibility, setUserDialogVisibility] = useState(false);
+  const { hydrated, userInfo } = useUserStore();
 
   const isRevealed = getIsRevealed();
   const userPlayer = getPlayer(userInfo?.id || "");
@@ -40,7 +40,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
   useEffect(() => {
     if (!hydrated) return; // Wait until the user store is hydrated
     if (!userInfo) {
-      setUserDialogVisibility(true);
+      router.push("/?redirect=" + encodeURIComponent(`${roomId}`));
     } else {
       addPlayer(userInfo.id, userInfo.name, userInfo.avatar);
     }
@@ -149,156 +149,151 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
   };
 
   return (
-    <>
-      <UserInfoDialog
-        open={userDialogVisibility}
-        onSave={(name: string, avatar: string) => {
-          const userInfo = setUserInfo(name, avatar);
-          addPlayer(userInfo.id, name, avatar);
-          setUserDialogVisibility(false);
-        }}
-      />
-
-      <div className="min-h-screen bg-[#F8F9FE] flex flex-col">
-        {/* Header */}
-        <header className="bg-white py-4 px-10 shadow-sm flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <h2 className="text-lg font-semibold">
-              {room?.name || "Planning Poker"}
-            </h2>
-            <span className="text-gray-500">
-              {new Date().toLocaleDateString("en-US", {
-                weekday: "short",
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </span>
-          </div>
-          {userInfo && (
-            <div className="flex items-center gap-3">
-              <div
-                className="w-36 flex items-center gap-2 cursor-pointer hover:opacity-80 hover:bg-gradient-to-b "
-                onClick={() => setUserDialogVisibility(true)}
-              >
-                <Avatar className="w-10 h-10 ">
-                  <AvatarImage
-                    src={`/avatars/1.jpg`}
-                    className="w-full h-full object-cover "
-                    alt={`${userInfo.name}'s avatar`}
-                  />
-                  <AvatarFallback className="w-8 h-8 bg-gray-100 flex items-center justify-center text-sm text-gray-600 font-bold">
-                    {userInfo.name
-                      .split(" ")
-                      .map((word) => word[0])
-                      .join("")
-                      .substring(0, 2)
-                      .toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <span
-                  className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 
+    <div
+      className="min-h-screen bg-[#F8F9FE] flex flex-col"
+      style={{
+        backgroundImage: `
+        linear-gradient(to right, #f0f0f0 1px, transparent 1px),
+        linear-gradient(to bottom, #f0f0f0 1px, transparent 1px),
+        radial-gradient(circle 800px at 100% 200px, #d5c5ff, transparent)
+      `,
+        backgroundSize: "96px 64px, 96px 64px, 100% 100%",
+      }}
+    >
+      {/* Header */}
+      <header className="bg-white py-4 px-10 shadow-sm flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <h2 className="text-lg font-semibold">
+            {room?.name || "Planning Poker"}
+          </h2>
+          <span className="text-gray-500">
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </span>
+        </div>
+        {userInfo && (
+          <div className="flex items-center gap-3">
+            <div
+              className="w-36 flex items-center gap-2 cursor-pointer hover:opacity-80 hover:bg-gradient-to-b "
+              // onClick={() => setUserDialogVisibility(true)}
+            >
+              <Avatar className="w-10 h-10 ">
+                <AvatarImage
+                  src={userInfo.avatar}
+                  className="w-full h-full object-cover "
+                  alt={`${userInfo.name}'s avatar`}
+                />
+                <AvatarFallback className="w-8 h-8 bg-gray-100 flex items-center justify-center text-sm text-gray-600 font-bold">
+                  {userInfo.name
+                    .split(" ")
+                    .map((word) => word[0])
+                    .join("")
+                    .substring(0, 2)
+                    .toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span
+                className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 
              overflow-hidden text-ellipsis whitespace-nowrap max-w-[120px]"
-                >
-                  {userInfo.name}
-                </span>
-              </div>
+              >
+                {userInfo.name}
+              </span>
             </div>
-          )}
-        </header>
-        <main className="flex-1 p-8 flex justify-center relative pb-40">
-          <div className="absolute top-0 left-6 max-h-[80vh] overflow-y-auto hidden sm:block">
-            <PlayerStatusList players={players} isRevealed={isRevealed} />
           </div>
-          {/* Voting Area */}
-          <div className="mb-12">
-            <div className="relative">
-              <ShimmerButton
-                title={
-                  userPlayer?.isAdmin
-                    ? isRevealed
-                      ? "Reset"
-                      : "Reveal"
-                    : userPlayer?.vote
-                    ? "Vote Submitted"
-                    : "Waiting for your vote"
+        )}
+      </header>
+      <main className="flex-1 p-8 flex justify-center relative pb-40">
+        <div className="absolute top-0 left-6 max-h-[80vh] overflow-y-auto hidden sm:block">
+          <PlayerStatusList players={players} isRevealed={isRevealed} />
+        </div>
+        {/* Voting Area */}
+        <div className="mb-12">
+          <div className="relative">
+            <ShimmerButton
+              title={
+                userPlayer?.isAdmin
+                  ? isRevealed
+                    ? "Reset"
+                    : "Reveal"
+                  : userPlayer?.vote
+                  ? "Vote Submitted"
+                  : "Waiting for your vote"
+              }
+              onClick={() => {
+                if (!userPlayer?.isAdmin) return;
+                if (isRevealed) {
+                  resetRound();
+                } else {
+                  revealVotes();
                 }
-                onClick={() => {
-                  if (!userPlayer?.isAdmin) return;
-                  if (isRevealed) {
-                    resetRound();
-                  } else {
-                    revealVotes();
-                  }
-                }}
-                readonly={!userPlayer?.isAdmin || !isRoomVoted}
-                variant={isRoomVoted ? "linear" : "conic"}
-              />
-              <PlayerList
-                players={room?.players || {}}
-                isRevealed={room?.isRevealed || false}
-              />
-            </div>
+              }}
+              readonly={!userPlayer?.isAdmin || !isRoomVoted}
+              variant={isRoomVoted ? "linear" : "conic"}
+            />
+            <PlayerList
+              players={room?.players || {}}
+              isRevealed={room?.isRevealed || false}
+            />
           </div>
-          {/* Card Selection */}
-          {room?.cardSet && room.cardSet.length > 0 && (
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[80vw] flex flex-col items-center">
-              <AnimatePresence mode="wait">
-                {(!isRevealed || userPlayer?.isObserver) && (
-                  <motion.div
-                    key="choose-cards"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="w-full flex flex-col items-center"
-                  >
-                    <h3 className="text-lg font-medium mb-4">
-                      Choose your card
-                    </h3>
-                    <div className="w-full overflow-x-auto pb-8">
-                      <div className="flex justify-center gap-4 min-w-min px-4 pt-4 ">
-                        {room.cardSet.map((p) => (
-                          <div
-                            key={p}
-                            className={`transform-gpu transition-transform duration-200 ${
-                              userPlayer?.vote === p
-                                ? ""
-                                : "hover:-translate-y-2"
-                            }`}
-                          >
-                            <PokerCard
-                              point={p}
-                              active={userPlayer?.vote === p}
-                              onClick={() =>
-                                vote(userPlayer?.vote === p ? null : p)
-                              }
-                              disabled={isRevealed}
-                            />
-                          </div>
-                        ))}
-                      </div>
+        </div>
+        {/* Card Selection */}
+        {room?.cardSet && room.cardSet.length > 0 && (
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[80vw] flex flex-col items-center">
+            <AnimatePresence mode="wait">
+              {(!isRevealed || userPlayer?.isObserver) && (
+                <motion.div
+                  key="choose-cards"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="w-full flex flex-col items-center"
+                >
+                  <h3 className="text-lg font-medium mb-4">Choose your card</h3>
+                  <div className="w-full overflow-x-auto pb-8">
+                    <div className="flex justify-center gap-4 min-w-min px-4 pt-4 ">
+                      {room.cardSet.map((p) => (
+                        <div
+                          key={p}
+                          className={`transform-gpu transition-transform duration-200 ${
+                            userPlayer?.vote === p ? "" : "hover:-translate-y-2"
+                          }`}
+                        >
+                          <PokerCard
+                            point={p}
+                            active={userPlayer?.vote === p}
+                            onClick={() =>
+                              vote(userPlayer?.vote === p ? null : p)
+                            }
+                            disabled={isRevealed}
+                          />
+                        </div>
+                      ))}
                     </div>
-                  </motion.div>
-                )}
-                {isRevealed && (
-                  <div className="flex items-center justify-around min-w-100">
-                    <PokerChartBar chartData={chartData} />
-                    <PokerChartPie chartData={chartData} />
                   </div>
-                )}
-              </AnimatePresence>
-            </div>
-          )}
-          {/* Fireworks if all vote the same */}
-          {isRevealed && chartData.length == 1 && (
-            <Realistic autorun={{ speed: 3, duration: 3 }} />
-          )}
-          <div className="hidden sm:block absolute top-10 right-20">
-            <LiveClock />
+                </motion.div>
+              )}
+              {isRevealed && (
+                <div className="flex items-center justify-around min-w-100">
+                  <PokerChartBar chartData={chartData} />
+                  <PokerChartPie chartData={chartData} />
+                </div>
+              )}
+            </AnimatePresence>
           </div>
-        </main>
-      </div>
-    </>
+        )}
+        {/* Fireworks if all vote the same */}
+        {isRevealed && chartData.length == 1 && (
+          <Realistic autorun={{ speed: 3, duration: 3 }} />
+        )}
+        <div className="hidden sm:block absolute top-10 right-20">
+          <LiveClock />
+        </div>
+      </main>
+    </div>
   );
 }

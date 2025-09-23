@@ -164,14 +164,13 @@ export default function Carousel({
   }, [activeIndex, onChange, cardData]);
 
   useEffect(() => {
-    console.log("initCardId", initCardId);
     if (!initCardId) return;
     const initIndex = cardData.findIndex((card) => card.id === initCardId);
     if (initIndex !== -1) {
       setActiveIndex(initIndex);
       setIsPaused(true);
     }
-  }, []);
+  }, [cardData, initCardId]);
 
   return (
     <section
