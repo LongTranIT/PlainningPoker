@@ -1,9 +1,7 @@
-export interface Player {
-  id: string;
-  name: string;
-  avatar: string;
+import { UserInfo } from "./user";
+
+export interface Player extends UserInfo {
   vote: string | null;
-  isObserver: boolean;
   isAdmin: boolean;
   joinedAt: string;
 }

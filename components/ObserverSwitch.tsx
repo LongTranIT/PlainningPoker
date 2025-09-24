@@ -26,8 +26,8 @@ export function ObserverSwitch({
       className={cn(
         "relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
         checked
-          ? "bg-blue-600 hover:bg-blue-700"
-          : "bg-green-600 hover:bg-green-700",
+          ? "bg-pink-300 hover:bg-pink-400"
+          : "bg-purple-300 hover:bg-purple-400",
         className
       )}
     >
@@ -46,7 +46,7 @@ export function ObserverSwitch({
         <span className="relative w-4 h-4">
           <Eye
             className={cn(
-              "absolute inset-0 w-4 h-4 text-blue-600 transition-all duration-200",
+              "absolute inset-0 w-4 h-4 text-pink-400 transition-all duration-200",
               checked
                 ? "opacity-100 scale-100 rotate-0"
                 : "opacity-0 scale-75 rotate-45"
@@ -54,7 +54,7 @@ export function ObserverSwitch({
           />
           <User
             className={cn(
-              "absolute inset-0 w-4 h-4 text-green-600 transition-all duration-200",
+              "absolute inset-0 w-4 h-4 text-purple-400 transition-all duration-200",
               !checked
                 ? "opacity-100 scale-100 rotate-0"
                 : "opacity-0 scale-75 -rotate-45"

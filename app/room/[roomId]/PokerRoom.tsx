@@ -19,6 +19,8 @@ import { PokerChartData } from "@/model/chart";
 import Realistic from "react-canvas-confetti/dist/presets/realistic";
 import { LiveClock } from "@/components/ui/clock";
 import { useRouter } from "next/navigation";
+import PokerHeading from "@/components/PokerHeading";
+import CopyButton from "@/components/ui/copy-button";
 
 interface PokerRoomProps {
   roomId: string;
@@ -162,10 +164,11 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
     >
       {/* Header */}
       <header className="bg-white py-4 px-10 shadow-sm flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <h2 className="text-lg font-semibold">
+        <div className="flex items-end gap-4">
+          {/* <h2 className="text-lg font-semibold">
             {room?.name || "Planning Poker"}
-          </h2>
+          </h2> */}
+          <PokerHeading size="sm" onClick={() => router.push("/")} />
           <span className="text-gray-500">
             {new Date().toLocaleDateString("en-US", {
               weekday: "short",
@@ -176,10 +179,16 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
           </span>
         </div>
         {userInfo && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
+            <CopyButton
+              textCopy={window.location.origin + "/room/" + roomId}
+              title="RoomID"
+            />
             <div
               className="w-36 flex items-center gap-2 cursor-pointer hover:opacity-80 hover:bg-gradient-to-b "
-              // onClick={() => setUserDialogVisibility(true)}
+              onClick={() => {
+                router.push("/?redirect=" + encodeURIComponent(`${roomId}`));
+              }}
             >
               <Avatar className="w-10 h-10 ">
                 <AvatarImage
@@ -244,7 +253,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
         {room?.cardSet && room.cardSet.length > 0 && (
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[80vw] flex flex-col items-center">
             <AnimatePresence mode="wait">
-              {(!isRevealed || userPlayer?.isObserver) && (
+              {!isRevealed && !userPlayer?.isObserver && (
                 <motion.div
                   key="choose-cards"
                   initial={{ opacity: 0, y: 10 }}

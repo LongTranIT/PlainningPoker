@@ -6,7 +6,7 @@ import { persist } from "zustand/middleware";
 interface UserState {
   userInfo: UserInfo | null;
   hydrated: boolean;
-  setUserInfo: (name: string, avatar: string) => UserInfo;
+  setUserInfo: (name: string, avatar: string, isObserver: boolean) => UserInfo;
   clearUserInfo: () => void;
   setHydrated: (hydrated: boolean) => void;
 }
@@ -16,11 +16,12 @@ export const useUserStore = create<UserState>()(
     (set, get) => ({
       userInfo: null,
       hydrated: false, // Indicates if the store has been rehydrated
-      setUserInfo: (name: string, avatar: string) => {
+      setUserInfo: (name: string, avatar: string, isObserver: boolean) => {
         const userInfo = {
           id: get().userInfo?.id || generateId(),
           name,
           avatar,
+          isObserver,
         };
         set({ userInfo });
         return userInfo;

@@ -61,7 +61,10 @@ const PlayerAvatar = ({
 );
 
 export const PlayerList = ({ players, isRevealed }: Props) => {
-  const playerEntries = Object.entries(players);
+  const playerEntries = Object.entries(players).filter(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ([_, p]) => !p.isObserver
+  );
   // const [count, setCount] = useState(10);
 
   // useEffect(() => {

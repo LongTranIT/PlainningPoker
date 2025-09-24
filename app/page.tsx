@@ -33,6 +33,7 @@ export default function Home() {
     if (userInfo) {
       setUserName(userInfo.name);
       setSelectedAvatar(userInfo.avatar);
+      setIsObserver(!!userInfo.isObserver);
     }
   }, [userInfo]);
 
@@ -48,8 +49,9 @@ export default function Home() {
       const finalUser =
         !userInfo ||
         userInfo.name !== userName ||
-        userInfo.avatar !== selectedAvatar
-          ? setUserInfo(userName, selectedAvatar)
+        userInfo.avatar !== selectedAvatar ||
+        userInfo.isObserver !== isObserver
+          ? setUserInfo(userName, selectedAvatar, isObserver)
           : userInfo;
       const roomId = redirectRoomId || generateId();
 
@@ -61,20 +63,22 @@ export default function Home() {
           update(playerRef, {
             name: finalUser.name,
             avatar: finalUser.avatar,
+            isObserver: finalUser.isObserver,
           });
-        }
-        const now = new Date().toISOString();
+        } else {
+          const now = new Date().toISOString();
 
-        const player: Player = {
-          id: finalUser.id,
-          name: finalUser.name,
-          avatar: finalUser.avatar,
-          vote: null,
-          isAdmin: false,
-          isObserver: false,
-          joinedAt: now,
-        };
-        await set(playerRef, player);
+          const player: Player = {
+            id: finalUser.id,
+            name: finalUser.name,
+            avatar: finalUser.avatar,
+            vote: null,
+            isAdmin: false,
+            isObserver: finalUser.isObserver,
+            joinedAt: now,
+          };
+          await set(playerRef, player);
+        }
       } else {
         // Initialize room data
         const roomRef = ref(db, dbPaths.room(roomId));
@@ -86,7 +90,7 @@ export default function Home() {
           avatar: finalUser.avatar,
           vote: null,
           isAdmin: true,
-          isObserver: false,
+          isObserver: finalUser.isObserver,
           joinedAt: now,
         };
 
@@ -145,7 +149,7 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <div
               className={`w-2 h-2 rounded-full ${
-                isObserver ? "bg-blue-500" : "bg-green-500"
+                isObserver ? "bg-pink-500" : "bg-purple-500"
               }`}
             />
             <span className="text-sm text-muted-foreground">
