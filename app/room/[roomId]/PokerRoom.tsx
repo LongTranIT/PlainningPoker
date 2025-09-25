@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { db, ref, update, set, get } from "@/lib/firebase";
+import { db, ref, update, set, get, remove } from "@/lib/firebase";
 import { PokerCard } from "@/components/PokerCard";
 import { PlayerList } from "@/components/PlayerList";
 import { listenRoom, useRoomStore } from "@/store/roomStore";
@@ -48,6 +48,21 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo, hydrated]);
+
+  useEffect(() => {
+    if (!userInfo) return;
+    // Remove user from room when tab is closed
+    const handleBeforeUnload = () => {
+      const playerRef = ref(db, dbPaths.player(roomId, userInfo.id));
+      remove(playerRef);
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [roomId, userInfo]);
 
   const isRoomVoted = useMemo(() => {
     if (!room) return false;

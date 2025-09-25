@@ -28,7 +28,6 @@ export default function Home() {
   const { setRoom } = useRoomStore();
   const searchParams = useSearchParams();
   const redirectRoomId = searchParams.get("redirect");
-  console.log("redirect", redirectRoomId);
   useEffect(() => {
     if (userInfo) {
       setUserName(userInfo.name);
@@ -58,7 +57,6 @@ export default function Home() {
       if (redirectRoomId) {
         const playerRef = ref(db, dbPaths.player(roomId, finalUser.id));
         const snapshot = await get(playerRef);
-
         if (snapshot.exists()) {
           update(playerRef, {
             name: finalUser.name,
