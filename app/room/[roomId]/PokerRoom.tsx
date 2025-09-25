@@ -6,7 +6,7 @@ import { PokerCard } from "@/components/PokerCard";
 import { PlayerList } from "@/components/PlayerList";
 import { listenRoom, useRoomStore } from "@/store/roomStore";
 import { useUserStore } from "@/store/userStore";
-import { Player } from "@/model/room";
+import type { Player } from "@/model/room";
 import { toast } from "sonner";
 import { dbPaths } from "@/lib/utils";
 import { ShimmerButton } from "@/components/ui/shimmer";
@@ -51,10 +51,33 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
 
   useEffect(() => {
     if (!userInfo) return;
-    // Remove user from room when tab is closed
+
     const handleBeforeUnload = () => {
-      const playerRef = ref(db, dbPaths.player(roomId, userInfo.id));
-      remove(playerRef);
+      if (!userInfo || !room) return;
+
+      // Synchronous operations for tab close
+      try {
+        // First update next admin
+        if (userPlayer?.isAdmin && room.players) {
+          const otherPlayers = Object.values(room.players)
+            .filter((p) => p.id !== userInfo.id)
+            .sort((a, b) => (a.joinedAt || "").localeCompare(b.joinedAt || ""));
+
+          if (otherPlayers.length > 0) {
+            const nextAdmin = otherPlayers[0];
+            set(ref(db, dbPaths.player(roomId, nextAdmin.id)), {
+              ...nextAdmin,
+              isAdmin: true,
+            });
+          }
+        }
+
+        // Then remove current user
+        const playerRef = ref(db, dbPaths.player(roomId, userInfo.id));
+        remove(playerRef);
+      } catch (error) {
+        toast.error("Error in beforeunload:" + error);
+      }
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
@@ -62,7 +85,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [roomId, userInfo]);
+  }, [roomId, userInfo, userPlayer?.isAdmin, room]);
 
   const isRoomVoted = useMemo(() => {
     if (!room) return false;
