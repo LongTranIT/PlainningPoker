@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { AnimatePresence, motion } from "framer-motion";
 import { Player } from "@/model/room";
+import { CrownIcon } from "./icon/king";
 
 // interface Player {
 //   id: string | number;
@@ -68,17 +69,24 @@ function PlayerSection({
             >
               <Card className="flex flex-row items-center justify-between gap-3 rounded-xl border shadow-sm px-4 py-2 h-12">
                 {/* Avatar */}
-                <Avatar className="w-8 h-8 rounded-md">
-                  <AvatarImage
-                    src={p.avatar}
-                    alt={p.name}
-                    className="object-cover"
-                  />
-                  <AvatarFallback className="text-sm font-semibold">
-                    {p.avatar}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="relative w-8 h-8">
+                  <Avatar className="w-8 h-8 rounded-md">
+                    <AvatarImage
+                      src={p.avatar}
+                      alt={p.name}
+                      className="object-cover"
+                    />
+                    <AvatarFallback className="text-sm font-semibold">
+                      {p.avatar}
+                    </AvatarFallback>
+                  </Avatar>
 
+                  {p.isAdmin && (
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center">
+                      <CrownIcon className="w-3 h-3 text-white" />
+                    </div>
+                  )}
+                </div>
                 {/* Name */}
                 <span className="font-medium truncate flex-1">{p.name}</span>
 

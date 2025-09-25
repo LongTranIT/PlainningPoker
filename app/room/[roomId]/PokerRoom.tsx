@@ -163,7 +163,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
       }}
     >
       {/* Header */}
-      <header className="bg-white py-4 px-10 shadow-sm flex justify-between items-center">
+      <header className="bg-white py-4 px-9 shadow-sm flex justify-between items-center">
         <div className="flex items-end gap-4">
           {/* <h2 className="text-lg font-semibold">
             {room?.name || "Planning Poker"}

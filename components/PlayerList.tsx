@@ -1,21 +1,15 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { PokerCard } from "./PokerCard";
 import { AnimatePresence, motion } from "framer-motion";
+import { CrownIcon } from "./icon/king";
+import { Player } from "@/model/room";
 
-interface Player {
-  name: string;
-  avatar: string;
-  vote: string | null;
-  isObserver: boolean;
-  joinedAt: string;
-}
-
-interface Props {
+interface PlayerListProps {
   players: Record<string, Player>;
   isRevealed: boolean;
 }
 
-const PlayerAvatar = ({
+const PlayerCard = ({
   player,
   isRevealed,
 }: {
@@ -47,6 +41,11 @@ const PlayerAvatar = ({
               .substring(0, 2)
               .toUpperCase()}
           </AvatarFallback>
+          {player.isAdmin && (
+            <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center">
+              <CrownIcon className="w-4 h-4 text-white" />
+            </div>
+          )}
         </Avatar>
       </div>
       <span
@@ -60,7 +59,7 @@ const PlayerAvatar = ({
   </div>
 );
 
-export const PlayerList = ({ players, isRevealed }: Props) => {
+export const PlayerList = ({ players, isRevealed }: PlayerListProps) => {
   const playerEntries = Object.entries(players).filter(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ([_, p]) => !p.isObserver
@@ -100,7 +99,7 @@ export const PlayerList = ({ players, isRevealed }: Props) => {
             exit={{ opacity: 0, scale: 0.8, y: -20 }}
             transition={{ duration: 0.3 }}
           >
-            <PlayerAvatar player={player} isRevealed={isRevealed} />
+            <PlayerCard player={player} isRevealed={isRevealed} />
           </motion.div>
         ))}
         {/* )} */}
