@@ -43,9 +43,28 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
     if (!hydrated) return; // Wait until the user store is hydrated
     if (!userInfo) {
       router.push("/?redirect=" + encodeURIComponent(`${roomId}`));
-    } else {
-      addPlayer(userInfo.id, userInfo.name, userInfo.avatar);
+      return;
     }
+
+    const checkRoomAndAddPlayer = async () => {
+      try {
+        // Check if room exists in Firebase
+        const roomRef = ref(db, dbPaths.room(roomId));
+        const roomSnapshot = await get(roomRef);
+
+        if (!roomSnapshot.exists()) {
+          toast.error("Room does not exist or has been closed.");
+          return;
+        }
+
+        // Add user to room if not already present
+        await addPlayer(userInfo.id, userInfo.name, userInfo.avatar);
+      } catch (error) {
+        toast.error("Error checking room: " + error);
+      }
+    };
+
+    checkRoomAndAddPlayer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo, hydrated]);
 
