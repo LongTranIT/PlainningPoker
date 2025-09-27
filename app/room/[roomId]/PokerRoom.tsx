@@ -234,6 +234,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
       [nameOfPlayer("isObserver")]: isObserver,
       [nameOfPlayer("vote")]: null,
     });
+    toast.success(`You are now an ${isObserver ? "observer" : "participant"}.`);
   };
 
   return (
