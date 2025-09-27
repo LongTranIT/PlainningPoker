@@ -1,24 +1,36 @@
-import { generateId } from "@/lib/utils";
 import { UserInfo } from "@/model/user";
+import { auth, loginAnonymously } from "@/lib/firebase";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface UserState {
   userInfo: UserInfo | null;
   hydrated: boolean;
-  setUserInfo: (name: string, avatar: string, isObserver: boolean) => UserInfo;
+  authReady: boolean;
+  setUserInfo: (
+    name: string,
+    avatar: string,
+    isObserver: boolean
+  ) => Promise<UserInfo>;
   clearUserInfo: () => void;
   setHydrated: (hydrated: boolean) => void;
+  ensureAuth: () => Promise<void>;
 }
 
 export const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
       userInfo: null,
-      hydrated: false, // Indicates if the store has been rehydrated
-      setUserInfo: (name: string, avatar: string, isObserver: boolean) => {
+      hydrated: false,
+      authReady: false,
+      setUserInfo: async (
+        name: string,
+        avatar: string,
+        isObserver: boolean
+      ) => {
+        await get().ensureAuth(); // Ensure user is authenticated
         const userInfo = {
-          id: get().userInfo?.id || generateId(),
+          id: auth.currentUser?.uid || "", // Use Firebase auth UID
           name,
           avatar,
           isObserver,
@@ -31,6 +43,17 @@ export const useUserStore = create<UserState>()(
       },
       setHydrated: (hydrated: boolean) => {
         set({ hydrated });
+      },
+      ensureAuth: async () => {
+        // If we already have a Firebase user, no need to login again
+        if (auth.currentUser) return;
+
+        try {
+          await loginAnonymously();
+        } catch (error) {
+          console.error("Authentication failed:", error);
+          throw error;
+        }
       },
     }),
     {

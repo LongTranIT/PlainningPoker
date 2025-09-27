@@ -40,19 +40,25 @@ export default function Home() {
   const handleJoin = async () => {
     try {
       if (!userName || !selectedAvatar) {
+        toast.error("Please enter your name and select an avatar!");
+        return;
+      }
+
+      setIsJoining(true);
+      if (!userName || !selectedAvatar) {
         alert("Please enter your name and select an avatar!");
         return;
       }
 
       setIsJoining(true);
 
-      const finalUser =
-        !userInfo ||
-        userInfo.name !== userName ||
-        userInfo.avatar !== selectedAvatar ||
-        userInfo.isObserver !== isObserver
-          ? setUserInfo(userName, selectedAvatar, isObserver)
-          : userInfo;
+      const finalUser = await (!userInfo ||
+      userInfo.name !== userName ||
+      userInfo.avatar !== selectedAvatar ||
+      userInfo.isObserver !== isObserver
+        ? setUserInfo(userName, selectedAvatar, isObserver)
+        : Promise.resolve(userInfo));
+
       const roomId = redirectRoomId || generateId();
 
       if (redirectRoomId) {

@@ -17,17 +17,20 @@ import { PokerChartPie } from "@/components/PokerChartPie";
 import { AnimatePresence, motion } from "framer-motion";
 import { PokerChartData } from "@/model/chart";
 import Realistic from "react-canvas-confetti/dist/presets/realistic";
-import { LiveClock } from "@/components/ui/clock";
 import { useRouter } from "next/navigation";
 import PokerHeading from "@/components/PokerHeading";
 import CopyButton from "@/components/ui/copy-button";
 import { ROUTES } from "@/app/routes";
 import { ObserverSwitch } from "@/components/ObserverSwitch";
+import dynamic from "next/dynamic";
 
 interface PokerRoomProps {
   roomId: string;
 }
 
+const LiveClock = dynamic(() => import("@/components/ui/clock"), {
+  ssr: false,
+});
 const nameOfPlayer = nameOfFactory<Player>();
 
 export function PokerRoom({ roomId }: PokerRoomProps) {

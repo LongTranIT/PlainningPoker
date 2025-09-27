@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Clock from "react-clock";
 import "react-clock/dist/Clock.css";
 
-export const LiveClock = () => {
+export default function LiveClock() {
   const [value, setValue] = useState(new Date());
 
   useEffect(() => {
@@ -16,4 +16,4 @@ export const LiveClock = () => {
   }, []);
 
   return <Clock value={value} />;
-};
+}
