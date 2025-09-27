@@ -188,11 +188,9 @@ export default function PlayerSections({
   //   const interval = setInterval(() => {
   //     setPlayers((prev) => {
   //       if (prev.length > 0 && Math.random() > 0.5) {
-  //         // ❌ Xóa random vị trí
   //         const index = Math.floor(Math.random() * prev.length);
   //         return prev.filter((_, i) => i !== index);
   //       } else {
-  //         // ➕ Thêm vào random vị trí
   //         const id = Date.now();
   //         const newPlayer: Player = {
   //           id,

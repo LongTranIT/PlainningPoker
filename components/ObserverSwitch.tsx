@@ -38,7 +38,7 @@ export function ObserverSwitch({
       {/* Toggle thumb */}
       <span
         className={cn(
-          "pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow-lg ring-0 transition-transform duration-200 ease-in-out flex items-center justify-center",
+          "pointer-events-none h-7 w-7 transform rounded-full bg-white shadow-lg ring-0 transition-transform duration-200 ease-in-out flex items-center justify-center",
           checked ? "translate-x-6" : "translate-x-0"
         )}
       >

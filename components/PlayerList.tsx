@@ -75,7 +75,7 @@ export const PlayerList = ({ players, isRevealed }: PlayerListProps) => {
   // useEffect(() => {
   //   const interval = setInterval(() => {
   //     setCount((prev) => {
-  //       const dir = Math.random() > 0.5 ? 1 : -1; // random tăng hoặc giảm
+  //       const dir = Math.random() > 0.5 ? 1 : -1;
   //       const next = prev + dir;
   //       return next;
   //     });
