@@ -70,33 +70,8 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
 
   useEffect(() => {
     if (!userInfo) return;
-
     const handleBeforeUnload = () => {
-      if (!userInfo || !room) return;
-
-      // Synchronous operations for tab close
-      try {
-        // First update next admin
-        if (userPlayer?.isAdmin && room.players) {
-          const otherPlayers = Object.values(room.players)
-            .filter((p) => p.id !== userInfo.id)
-            .sort((a, b) => (a.joinedAt || "").localeCompare(b.joinedAt || ""));
-
-          if (otherPlayers.length > 0) {
-            const nextAdmin = otherPlayers[0];
-            set(ref(db, dbPaths.player(roomId, nextAdmin.id)), {
-              ...nextAdmin,
-              isAdmin: true,
-            });
-          }
-        }
-
-        // Then remove current user
-        const playerRef = ref(db, dbPaths.player(roomId, userInfo.id));
-        remove(playerRef);
-      } catch (error) {
-        toast.error("Error in beforeunload:" + error);
-      }
+      handlePlayerLeave();
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
@@ -104,23 +79,59 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [roomId, userInfo, userPlayer?.isAdmin, room]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomId, userInfo, userPlayer, room]);
+
+  const handlePlayerLeave = () => {
+    if (!userInfo || !room) return;
+
+    // Synchronous operations for tab close
+    try {
+      const onlyOnePlayer = Object.values(room.players || {}).length === 1;
+      if (onlyOnePlayer) {
+        const userPlayerNewState = { ...userPlayer, isOffline: true };
+        set(
+          ref(db, dbPaths.player(room.roomId, userInfo.id)),
+          userPlayerNewState
+        );
+        return;
+      }
+      // First update next admin
+      if (userPlayer?.isAdmin) {
+        const otherPlayers = Object.values(room.players ?? {})
+          .filter((p) => p.id !== userInfo.id)
+          .sort((a, b) => (a.joinedAt || "").localeCompare(b.joinedAt || ""));
+
+        if (otherPlayers.length > 0) {
+          const nextAdmin = otherPlayers[0];
+          nextAdmin.isAdmin = true;
+          set(ref(db, dbPaths.player(room.roomId, nextAdmin.id)), nextAdmin);
+        }
+      }
+
+      // Then remove current user
+      const playerRef = ref(db, dbPaths.player(room.roomId, userInfo.id));
+      remove(playerRef);
+    } catch (error) {
+      toast.error("Error in beforeunload:" + error);
+    }
+  };
 
   const isRoomVoted = useMemo(() => {
     if (!room) return false;
     // Check if any player has voted
-    return Object.values(room.players).some((player) => player?.vote);
+    return Object.values(room.players ?? {}).some((player) => player?.vote);
   }, [room]);
 
   const players = useMemo(() => {
     if (!room) return [];
-    return Object.values(room.players);
+    return Object.values(room.players ?? {});
   }, [room]);
 
   const chartData: PokerChartData[] = useMemo(() => {
     if (!room) return [];
     const voteCount: Record<string, number> = {};
-    Object.values(room.players).forEach((player) => {
+    Object.values(room.players ?? {}).forEach((player) => {
       if (player.vote) {
         voteCount[player.vote] = (voteCount[player.vote] || 0) + 1;
       }
@@ -222,10 +233,13 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
       {/* Header */}
       <header className="bg-white py-4 px-9 shadow-sm flex justify-between items-center">
         <div className="flex items-end gap-4">
-          {/* <h2 className="text-lg font-semibold">
-            {room?.name || "Planning Poker"}
-          </h2> */}
-          <PokerHeading size="sm" onClick={() => router.push("/")} />
+          <PokerHeading
+            size="sm"
+            onClick={() => {
+              handlePlayerLeave();
+              router.push("/");
+            }}
+          />
           <span className="text-gray-500">
             {new Date().toLocaleDateString("en-US", {
               weekday: "short",

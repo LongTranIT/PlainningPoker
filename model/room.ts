@@ -4,6 +4,7 @@ export interface Player extends UserInfo {
   vote: string | null;
   isAdmin: boolean;
   joinedAt: string;
+  isOffline?: boolean;
 }
 
 export interface Room {

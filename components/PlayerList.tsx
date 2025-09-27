@@ -3,6 +3,7 @@ import { PokerCard } from "./PokerCard";
 import { AnimatePresence, motion } from "framer-motion";
 import { CrownIcon } from "./icon/king";
 import { Player } from "@/model/room";
+import clsx from "clsx";
 
 interface PlayerListProps {
   players: Record<string, Player>;
@@ -16,7 +17,12 @@ const PlayerCard = ({
   player: Player;
   isRevealed: boolean;
 }) => (
-  <div className="flex flex-col items-center group">
+  <div
+    className={clsx(
+      "flex flex-col items-center",
+      player.isOffline && "opacity-50"
+    )}
+  >
     <div className="mb-2">
       <PokerCard
         point={player.vote ? (isRevealed ? player.vote : "🤫") : ""}

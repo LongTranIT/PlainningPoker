@@ -4,6 +4,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { AnimatePresence, motion } from "framer-motion";
 import { Player } from "@/model/room";
 import { CrownIcon } from "./icon/king";
+import clsx from "clsx";
 
 // interface Player {
 //   id: string | number;
@@ -67,7 +68,12 @@ function PlayerSection({
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.2 }}
             >
-              <Card className="flex flex-row items-center justify-between gap-3 rounded-xl border shadow-sm px-4 py-2 h-12">
+              <Card
+                className={clsx(
+                  "flex flex-row items-center justify-between gap-3 rounded-xl border shadow-sm px-4 py-2 h-12",
+                  p.isOffline && "opacity-50"
+                )}
+              >
                 {/* Avatar */}
                 <div className="relative w-8 h-8">
                   <Avatar className="w-8 h-8 rounded-md">

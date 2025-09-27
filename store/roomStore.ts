@@ -14,7 +14,7 @@ export const useRoomStore = create<RoomState>((set, get) => ({
   room: null,
   setRoom: (room) => set({ room }),
   getPlayer: (userId: string) => {
-    const player = get().room?.players[userId];
+    const player = get().room?.players?.[userId];
     return player ? { ...player } : null;
   },
   getIsRevealed: () => {
