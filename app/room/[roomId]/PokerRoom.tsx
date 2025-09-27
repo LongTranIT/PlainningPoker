@@ -8,7 +8,7 @@ import { listenRoom, useRoomStore } from "@/store/roomStore";
 import { useUserStore } from "@/store/userStore";
 import type { Player } from "@/model/room";
 import { toast } from "sonner";
-import { dbPaths } from "@/lib/utils";
+import { dbPaths, nameOfFactory } from "@/lib/utils";
 import { ShimmerButton } from "@/components/ui/shimmer";
 import PlayerStatusList from "@/components/PlayerStatusList";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,10 +22,13 @@ import { useRouter } from "next/navigation";
 import PokerHeading from "@/components/PokerHeading";
 import CopyButton from "@/components/ui/copy-button";
 import { ROUTES } from "@/app/routes";
+import { ObserverSwitch } from "@/components/ObserverSwitch";
 
 interface PokerRoomProps {
   roomId: string;
 }
+
+const nameOfPlayer = nameOfFactory<Player>();
 
 export function PokerRoom({ roomId }: PokerRoomProps) {
   const router = useRouter();
@@ -135,6 +138,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
   ) => {
     if (isAdminOffline) return "Admin is offline";
     if (player?.isAdmin) return isRevealed ? "Reset" : "Reveal";
+    if (player?.isObserver) return "Observer";
     return player?.vote ? "Vote Submitted" : "Waiting for your vote";
   };
 
@@ -202,7 +206,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
 
       if (snapshot.exists()) {
         const statusRef = ref(db, dbPaths.player(roomId, playerId));
-        await update(statusRef, { isOffline: false });
+        await update(statusRef, { [nameOfPlayer("isOffline")]: false });
         return;
       }
       const now = new Date().toISOString();
@@ -221,6 +225,15 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
       toast.error("Failed to add player: " + error);
       throw error;
     }
+  };
+
+  const handleObserverChange = async (isObserver: boolean) => {
+    if (!userInfo || !room) return;
+    const playerRef = ref(db, dbPaths.player(room.roomId, userInfo.id));
+    await update(playerRef, {
+      [nameOfPlayer("isObserver")]: isObserver,
+      [nameOfPlayer("vote")]: null,
+    });
   };
 
   return (
@@ -255,10 +268,16 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
           </span>
         </div>
         {userInfo && (
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             <CopyButton
               textCopy={window.location.origin + ROUTES.ROOM_DETAIL(roomId)}
               title="RoomID"
+            />
+            <ObserverSwitch
+              checked={userPlayer?.isObserver || false}
+              onCheckedChange={(checked) => {
+                handleObserverChange(checked);
+              }}
             />
             <div
               className="w-36 flex items-center gap-2 cursor-pointer hover:opacity-80 hover:bg-gradient-to-b "
@@ -292,7 +311,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
         )}
       </header>
       <main className="flex-1 p-8 flex justify-center relative pb-40">
-        <div className="absolute top-0 left-6 max-h-[80vh] overflow-y-auto hidden sm:block">
+        <div className="absolute top-0 left-6 max-h-[80vh] overflow-y-auto hidden sm:block z-10">
           <PlayerStatusList
             players={players}
             isRevealed={isRevealed}

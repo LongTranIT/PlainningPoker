@@ -26,8 +26,8 @@ export function ObserverSwitch({
       className={cn(
         "relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
         checked
-          ? "bg-pink-300 hover:bg-pink-400"
-          : "bg-purple-300 hover:bg-purple-400",
+          ? "bg-pink-400 hover:bg-pink-300"
+          : "bg-purple-400 hover:bg-purple-300",
         className
       )}
     >
