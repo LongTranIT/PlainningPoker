@@ -21,6 +21,7 @@ import { LiveClock } from "@/components/ui/clock";
 import { useRouter } from "next/navigation";
 import PokerHeading from "@/components/PokerHeading";
 import CopyButton from "@/components/ui/copy-button";
+import { ROUTES } from "@/app/routes";
 
 interface PokerRoomProps {
   roomId: string;
@@ -85,10 +86,8 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
   const handlePlayerLeave = () => {
     if (!userInfo || !room) return;
 
-    // Synchronous operations for tab close
     try {
-      const onlyOnePlayer = Object.values(room.players || {}).length === 1;
-      if (onlyOnePlayer) {
+      if (userPlayer?.isAdmin) {
         const userPlayerNewState = { ...userPlayer, isOffline: true };
         set(
           ref(db, dbPaths.player(room.roomId, userInfo.id)),
@@ -96,24 +95,11 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
         );
         return;
       }
-      // First update next admin
-      if (userPlayer?.isAdmin) {
-        const otherPlayers = Object.values(room.players ?? {})
-          .filter((p) => p.id !== userInfo.id)
-          .sort((a, b) => (a.joinedAt || "").localeCompare(b.joinedAt || ""));
 
-        if (otherPlayers.length > 0) {
-          const nextAdmin = otherPlayers[0];
-          nextAdmin.isAdmin = true;
-          set(ref(db, dbPaths.player(room.roomId, nextAdmin.id)), nextAdmin);
-        }
-      }
-
-      // Then remove current user
       const playerRef = ref(db, dbPaths.player(room.roomId, userInfo.id));
       remove(playerRef);
     } catch (error) {
-      toast.error("Error in beforeunload:" + error);
+      toast.error("Failed to remove player: " + error);
     }
   };
 
@@ -140,6 +126,23 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
       Point: point,
       Count: count,
     }));
+  }, [room]);
+
+  const getButtonTitle = (
+    isAdminOffline: boolean,
+    player: Player | null,
+    isRevealed: boolean
+  ) => {
+    if (isAdminOffline) return "Admin is offline";
+    if (player?.isAdmin) return isRevealed ? "Reset" : "Reveal";
+    return player?.vote ? "Vote Submitted" : "Waiting for your vote";
+  };
+
+  const isAdminOffline = useMemo(() => {
+    if (!room) return false;
+    return Object.values(room.players ?? {}).some(
+      (player) => player.isAdmin && player.isOffline
+    );
   }, [room]);
 
   const vote = async (point: string | null) => {
@@ -198,7 +201,9 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
       const snapshot = await get(playerRef);
 
       if (snapshot.exists()) {
-        return; // Player already exists
+        const statusRef = ref(db, dbPaths.player(roomId, playerId));
+        await update(statusRef, { isOffline: false });
+        return;
       }
       const now = new Date().toISOString();
 
@@ -237,7 +242,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
             size="sm"
             onClick={() => {
               handlePlayerLeave();
-              router.push("/");
+              router.push(ROUTES.HOME);
             }}
           />
           <span className="text-gray-500">
@@ -252,7 +257,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
         {userInfo && (
           <div className="flex items-center gap-4">
             <CopyButton
-              textCopy={window.location.origin + "/room/" + roomId}
+              textCopy={window.location.origin + ROUTES.ROOM_DETAIL(roomId)}
               title="RoomID"
             />
             <div
@@ -288,21 +293,18 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
       </header>
       <main className="flex-1 p-8 flex justify-center relative pb-40">
         <div className="absolute top-0 left-6 max-h-[80vh] overflow-y-auto hidden sm:block">
-          <PlayerStatusList players={players} isRevealed={isRevealed} />
+          <PlayerStatusList
+            players={players}
+            isRevealed={isRevealed}
+            roomId={roomId}
+            currentUserId={userInfo?.id || ""}
+          />
         </div>
         {/* Voting Area */}
         <div className="mb-12">
           <div className="relative">
             <ShimmerButton
-              title={
-                userPlayer?.isAdmin
-                  ? isRevealed
-                    ? "Reset"
-                    : "Reveal"
-                  : userPlayer?.vote
-                  ? "Vote Submitted"
-                  : "Waiting for your vote"
-              }
+              title={getButtonTitle(isAdminOffline, userPlayer, isRevealed)}
               onClick={() => {
                 if (!userPlayer?.isAdmin) return;
                 if (isRevealed) {

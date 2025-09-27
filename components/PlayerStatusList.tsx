@@ -1,10 +1,22 @@
 "use client";
+import { db, ref, update } from "@/lib/firebase";
+import { dbPaths } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
+import { toast } from "sonner";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { AnimatePresence, motion } from "framer-motion";
 import { Player } from "@/model/room";
 import { CrownIcon } from "./icon/king";
 import clsx from "clsx";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { Eye, User } from "lucide-react";
 
 // interface Player {
 //   id: string | number;
@@ -37,11 +49,18 @@ interface PlayerSectionProps {
   players: Player[];
   showVote?: "show" | "hide";
   voteColor?: string;
+  roomId: string;
+  isAdmin: boolean;
+  currentUserId: string;
+  onChangeAdmin: (playerId: string) => void;
+  onToggleObserver?: (playerId: string) => void;
 }
 
 interface PlayerSectionListProps {
   players: Player[];
   isRevealed?: boolean;
+  roomId: string;
+  currentUserId: string;
 }
 
 function PlayerSection({
@@ -50,6 +69,10 @@ function PlayerSection({
   players,
   showVote,
   voteColor,
+  isAdmin,
+  currentUserId,
+  onChangeAdmin,
+  onToggleObserver,
 }: PlayerSectionProps) {
   return (
     <div className="min-h-40">
@@ -68,47 +91,80 @@ function PlayerSection({
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.2 }}
             >
-              <Card
-                className={clsx(
-                  "flex flex-row items-center justify-between gap-3 rounded-xl border shadow-sm px-4 py-2 h-12",
-                  p.isOffline && "opacity-50"
-                )}
+              <DropdownMenu
+                open={isAdmin && currentUserId !== p.id ? undefined : false}
               >
-                {/* Avatar */}
-                <div className="relative w-8 h-8">
-                  <Avatar className="w-8 h-8 rounded-md">
-                    <AvatarImage
-                      src={p.avatar}
-                      alt={p.name}
-                      className="object-cover"
-                    />
-                    <AvatarFallback className="text-sm font-semibold">
-                      {p.avatar}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  {p.isAdmin && (
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center">
-                      <CrownIcon className="w-3 h-3 text-white" />
-                    </div>
-                  )}
-                </div>
-                {/* Name */}
-                <span className="font-medium truncate flex-1">{p.name}</span>
-
-                {/* Vote number (if needed) */}
-                {showVote && (
-                  <Avatar
-                    className={`w-8 h-8 rounded-md ${
-                      voteColor || "bg-gray-100"
-                    }`}
+                <DropdownMenuTrigger asChild>
+                  <Card
+                    className={clsx(
+                      "flex flex-row items-center justify-between gap-3 rounded-xl border shadow-sm px-4 py-2 h-12",
+                      p.isOffline && "opacity-50",
+                      isAdmin &&
+                        currentUserId !== p.id &&
+                        "cursor-pointer hover:bg-gray-50"
+                    )}
                   >
-                    <AvatarFallback className="text-sm font-semibold text-gray-700">
-                      {showVote === "show" ? p.vote ?? "?" : "?"}
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-              </Card>
+                    {/* Avatar */}
+                    <div className="relative w-8 h-8">
+                      <Avatar className="w-8 h-8 rounded-md">
+                        <AvatarImage
+                          src={p.avatar}
+                          alt={p.name}
+                          className="object-cover"
+                        />
+                        <AvatarFallback className="text-sm font-semibold">
+                          {p.avatar}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      {p.isAdmin && (
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center">
+                          <CrownIcon className="w-3 h-3 text-white" />
+                        </div>
+                      )}
+                    </div>
+                    {/* Name */}
+                    <span className="font-medium truncate flex-1">
+                      {p.name}
+                    </span>
+
+                    {/* Vote number (if needed) */}
+                    {showVote && (
+                      <Avatar
+                        className={`w-8 h-8 rounded-md ${
+                          voteColor || "bg-gray-100"
+                        }`}
+                      >
+                        <AvatarFallback className="text-sm font-semibold text-gray-700">
+                          {showVote === "show" ? p.vote ?? "?" : "?"}
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                  </Card>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="w-48 cursor-pointer"
+                  side="right"
+                  align="start"
+                >
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuCheckboxItem onClick={() => onChangeAdmin(p.id)}>
+                    <CrownIcon className="w-4 h-4 text-yellow-400" />
+                    Assign as Admin
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem
+                    onClick={() => onToggleObserver?.(p.id)}
+                  >
+                    {p.isObserver ? (
+                      <User className="text-purple-400" />
+                    ) : (
+                      <Eye className="text-pink-400" />
+                    )}
+                    {p.isObserver ? "Make Player" : "Make Observer"}
+                  </DropdownMenuCheckboxItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </motion.div>
           ))}
         </AnimatePresence>
@@ -120,6 +176,8 @@ function PlayerSection({
 export default function PlayerSections({
   players,
   isRevealed,
+  roomId,
+  currentUserId,
 }: PlayerSectionListProps) {
   // const [players, setPlayers] = useState<Player[]>([
   //   { id: 1, name: "Alice", initial: "A", vote: 5 },
@@ -155,6 +213,65 @@ export default function PlayerSections({
   const votedPlayers = players.filter((p) => p.vote && !p.isObserver);
   const waitingPlayers = players.filter((p) => !p.vote && !p.isObserver);
   const observerPlayers = players.filter((p) => p.isObserver);
+
+  const isAdmin = players.find((p) => p.id === currentUserId)?.isAdmin ?? false;
+
+  const handleToggleObserver = async (playerId: string) => {
+    try {
+      // Only allow admin to toggle observer status
+      const currentPlayer = players.find((p) => p.id === currentUserId);
+      if (!currentPlayer?.isAdmin) {
+        toast.error("Only admin can change player status");
+        return;
+      }
+
+      const targetPlayer = players.find((p) => p.id === playerId);
+      if (!targetPlayer) {
+        toast.error("Player not found");
+        return;
+      }
+
+      // Update player's observer status
+      await update(ref(db, dbPaths.player(roomId, playerId)), {
+        isObserver: !targetPlayer.isObserver,
+        // Clear vote when making observer
+        vote: null,
+      });
+
+      toast.success(
+        targetPlayer.isObserver
+          ? `${targetPlayer.name} changed to player`
+          : `${targetPlayer.name} changed to observer`
+      );
+    } catch (error) {
+      toast.error("Failed to change player status: " + error);
+    }
+  };
+
+  const handleAssignAdmin = async (playerId: string) => {
+    try {
+      // Only allow current admin to assign new admin
+      const currentPlayer = players.find((p) => p.id === currentUserId);
+      if (!currentPlayer?.isAdmin) {
+        toast.error("Only admin can assign new admin");
+        return;
+      }
+
+      // Remove admin from current user
+      await update(ref(db, dbPaths.player(roomId, currentUserId)), {
+        isAdmin: false,
+      });
+
+      // Assign admin to selected player
+      await update(ref(db, dbPaths.player(roomId, playerId)), {
+        isAdmin: true,
+      });
+
+      toast.success("Admin role transferred successfully");
+    } catch (error) {
+      toast.error("Failed to assign admin: " + error);
+    }
+  };
   return (
     <motion.div
       layout
@@ -167,10 +284,33 @@ export default function PlayerSections({
         players={votedPlayers}
         showVote={isRevealed ? "show" : "hide"}
         voteColor="bg-gray-100"
+        roomId={roomId}
+        isAdmin={isAdmin}
+        currentUserId={currentUserId}
+        onChangeAdmin={handleAssignAdmin}
+        onToggleObserver={handleToggleObserver}
       />
-      <PlayerSection title="Waiting" icon="⏱" players={waitingPlayers} />
+      <PlayerSection
+        title="Waiting"
+        icon="⏱"
+        players={waitingPlayers}
+        roomId={roomId}
+        isAdmin={isAdmin}
+        currentUserId={currentUserId}
+        onChangeAdmin={handleAssignAdmin}
+        onToggleObserver={handleToggleObserver}
+      />
       {observerPlayers.length > 0 && (
-        <PlayerSection title="Observer" icon="👀" players={observerPlayers} />
+        <PlayerSection
+          title="Observer"
+          icon="👀"
+          players={observerPlayers}
+          roomId={roomId}
+          isAdmin={isAdmin}
+          currentUserId={currentUserId}
+          onChangeAdmin={handleAssignAdmin}
+          onToggleObserver={handleToggleObserver}
+        />
       )}
     </motion.div>
   );

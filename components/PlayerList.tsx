@@ -40,7 +40,7 @@ const PlayerCard = ({
             alt={`${player.name}'s avatar`}
           />
           <AvatarFallback className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center text-sm text-gray-600 font-bold">
-            {player.name
+            {(player.name || "")
               .split(" ")
               .map((word) => word[0])
               .join("")
