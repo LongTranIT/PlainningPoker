@@ -16,6 +16,7 @@ import PokerHeading from "@/components/PokerHeading";
 import { Label } from "@/components/ui/label";
 import clsx from "clsx";
 import { ObserverSwitch } from "@/components/ObserverSwitch";
+import { toast } from "sonner";
 
 export default function Home() {
   const router = useRouter();
@@ -110,8 +111,7 @@ export default function Home() {
       // Navigate to room
       await router.push(ROUTES.ROOM_DETAIL(roomId));
     } catch (error) {
-      console.error("Error joining room:", error);
-      alert("Failed to join room. Please try again.");
+      toast.error("Error joining room: " + error);
     } finally {
       // setIsJoining(false);
     }

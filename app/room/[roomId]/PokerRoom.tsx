@@ -259,7 +259,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
               router.push(ROUTES.HOME);
             }}
           />
-          <span className="text-gray-500">
+          <span className="hidden sm:inline text-gray-500 ">
             {new Date().toLocaleDateString("en-US", {
               weekday: "short",
               month: "short",
@@ -269,7 +269,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
           </span>
         </div>
         {userInfo && (
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-6 overflow-auto">
             <CopyButton
               textCopy={window.location.origin + ROUTES.ROOM_DETAIL(roomId)}
               title="RoomID"
@@ -333,7 +333,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
                   revealVotes();
                 }
               }}
-              readonly={!userPlayer?.isAdmin || !isRoomVoted}
+              readonly={!userPlayer?.isAdmin || (!isRevealed && !isRoomVoted)}
               variant={isRoomVoted ? "linear" : "conic"}
             />
             <PlayerList

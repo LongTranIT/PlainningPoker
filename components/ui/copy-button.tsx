@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { toast } from "sonner";
 
 interface CopyButtonProps {
   textCopy: string;
@@ -64,7 +65,7 @@ export default function CopyRoomIdButton({ textCopy, title }: CopyButtonProps) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error("Copy failed:", err);
+      toast.error("Copy failed: " + err);
     }
   };
 

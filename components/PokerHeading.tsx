@@ -1,4 +1,5 @@
 "use client";
+import clsx from "clsx";
 import React, { memo } from "react";
 
 interface AuroraTextProps {
@@ -80,7 +81,9 @@ export default function PokerHeading({
         }`}
         onClick={onClick}
       >
-        <h1 className={`text-${size === "lg" ? "5xl" : "3xl"} font-bold`}>
+        <h1
+          className={clsx("font-bold", size === "lg" ? "text-5xl" : "text-3xl")}
+        >
           Scrum{" "}
           <AuroraText speed={1} colors={["#38BDF8", "#3B82F6", "#EC4899"]}>
             Poker
