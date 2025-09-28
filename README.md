@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Planning Poker - Agile Estimation Made Easy
 
-## Getting Started
+Planning Poker is a real-time, collaborative estimation tool designed for agile teams. It helps teams estimate work items through consensus-based discussions using the Planning Poker technique.
 
-First, run the development server:
+## 🎮 Key Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### User Experience
+- **Easy Room Creation**: Create a poker room instantly with one click
+- **Seamless Join**: Join existing rooms via shareable links
+- **Avatar Selection**: Personalize your presence with custom avatars
+- **Role Selection**: Choose between voter and observer roles
+- **Real-time Updates**: See participants and votes in real-time
+- **Beautiful UI**: Clean, modern interface with smooth transitions
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Poker Session Features
+- **Vote Management**:
+  - Hidden voting until all votes are cast
+  - Vote reveal with visual indicators
+  - Vote reset for new rounds
+- **Participant Management**:
+  - Real-time participant list
+  - Observer/Voter role switching
+  - Admin controls for room management
+- **Visualization**:
+  - Card-based voting interface
+  - Visual statistics for vote distribution
+  - Clear consensus indicators
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Technical Implementation
+- Built with [Next.js](https://nextjs.org) 13 App Router
+- Real-time updates with Firebase Realtime Database
+- Modern UI components with TailwindCSS and shadcn/ui
+- Responsive design for all devices
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Getting Started
 
-## Learn More
+1. **Clone & Install**
+   ```bash
+   git clone https://github.com/LongTranIT/PlainningPoker.git
+   cd PlainningPoker
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Set up Firebase**
+   - Create a Firebase project
+   - Enable Realtime Database
+   - Add your Firebase config to `.env.local`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Run the Development Server**
+   ```bash
+   npm run dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. **Open the App**
+   - Visit [http://localhost:3000](http://localhost:3000)
+   - Create your first poker room!
 
-## Deploy on Vercel
+## 🌟 Usage Tips
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Creating a Room**
+   - Enter your name and select an avatar
+   - Choose your role (voter/observer)
+   - Click "Create Room"
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. **Joining a Room**
+   - Use the shared room link
+   - Enter your details
+   - Click "Join Room"
+
+3. **During Sessions**
+   - Wait for all votes before reveal
+   - Discuss estimates when revealed
+   - Reset votes for new items
+
+## 🛠 Technologies
+
+- **Frontend**: Next.js, React, TailwindCSS
+- **Backend**: Firebase Realtime Database
+- **State Management**: Zustand
+- **UI Components**: shadcn/ui
+- **Styling**: TailwindCSS, clsx
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to:
+- Report bugs
+- Suggest new features
+- Submit pull requests
+
+## 📄 License
+
+MIT License - feel free to use this project as a template for your own Planning Poker implementation!
+
+---
+
+Built with ❤️ by [Long Tran](https://github.com/LongTranIT)
