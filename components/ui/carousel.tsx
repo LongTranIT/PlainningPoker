@@ -131,6 +131,7 @@ export default function Carousel({
         clearInterval(autoplayIntervalRef.current);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPaused, activeIndex]);
 
   const changeSlide = (newIndex: number) => {
