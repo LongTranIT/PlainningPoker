@@ -11,7 +11,6 @@ interface AuroraTextProps {
 
 interface PokerHeadingProps {
   size?: "sm" | "lg";
-  onClick?: () => void;
 }
 
 export const AuroraText = memo(
@@ -51,10 +50,7 @@ export const AuroraText = memo(
 
 AuroraText.displayName = "AuroraText";
 
-export default function PokerHeading({
-  size = "lg",
-  onClick,
-}: PokerHeadingProps) {
+export default function PokerHeading({ size = "lg" }: PokerHeadingProps) {
   return (
     <>
       <style>{`
@@ -76,10 +72,9 @@ export default function PokerHeading({
 
       {/* demo ---------------------------------------------------------------- */}
       <main
-        className={`flex items-center justify-center font-sans text-black dark:text-white ${
-          onClick ? "cursor-pointer hover:opacity-50" : ""
-        }`}
-        onClick={onClick}
+        className={
+          "flex items-center justify-center font-sans text-black dark:text-white"
+        }
       >
         <h1
           className={clsx("font-bold", size === "lg" ? "text-5xl" : "text-3xl")}

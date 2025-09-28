@@ -72,7 +72,7 @@ export default function CopyRoomIdButton({ textCopy, title }: CopyButtonProps) {
   return (
     <button
       onClick={handleCopy}
-      className="flex items-center gap-2 px-3 py-1 rounded-md border border-gray-300 bg-white hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors"
+      className="flex items-center gap-2 px-3 py-1 rounded-md border border-gray-300 bg-white hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors cursor-pointer"
     >
       {!copied ? (
         <>

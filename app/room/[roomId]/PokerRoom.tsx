@@ -23,6 +23,11 @@ import CopyButton from "@/components/ui/copy-button";
 import { ROUTES } from "@/app/routes";
 import { ObserverSwitch } from "@/components/ObserverSwitch";
 import dynamic from "next/dynamic";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface PokerRoomProps {
   roomId: string;
@@ -255,13 +260,23 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
       {/* Header */}
       <header className="bg-white py-4 px-9 shadow-sm flex justify-between items-center">
         <div className="flex items-end gap-4">
-          <PokerHeading
-            size="sm"
-            onClick={() => {
-              handlePlayerLeave();
-              router.push(ROUTES.HOME);
-            }}
-          />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div
+                tabIndex={0}
+                onClick={() => {
+                  handlePlayerLeave();
+                  router.push(ROUTES.HOME);
+                }}
+                className="cursor-pointer hover:opacity-50"
+              >
+                <PokerHeading size="sm" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Create new room</p>
+            </TooltipContent>
+          </Tooltip>
           <span className="hidden sm:inline text-gray-500 ">
             {new Date().toLocaleDateString("en-US", {
               weekday: "short",
@@ -283,34 +298,44 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
                 handleObserverChange(checked);
               }}
             />
-            <div
-              className="w-36 flex items-center gap-2 cursor-pointer hover:opacity-80 hover:bg-gradient-to-b "
-              onClick={() => {
-                router.push("/?redirect=" + encodeURIComponent(`${roomId}`));
-              }}
-            >
-              <Avatar className="w-10 h-10 ">
-                <AvatarImage
-                  src={userInfo.avatar}
-                  className="w-full h-full object-cover "
-                  alt={`${userInfo.name}'s avatar`}
-                />
-                <AvatarFallback className="w-8 h-8 bg-gray-100 flex items-center justify-center text-sm text-gray-600 font-bold">
-                  {userInfo.name
-                    .split(" ")
-                    .map((word) => word[0])
-                    .join("")
-                    .substring(0, 2)
-                    .toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <span
-                className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  className="w-36 flex items-center gap-2 cursor-pointer hover:opacity-80 hover:bg-gradient-to-b "
+                  onClick={() => {
+                    router.push(
+                      "/?redirect=" + encodeURIComponent(`${roomId}`)
+                    );
+                  }}
+                  tabIndex={0}
+                >
+                  <Avatar className="w-10 h-10 ">
+                    <AvatarImage
+                      src={userInfo.avatar}
+                      className="w-full h-full object-cover "
+                      alt={`${userInfo.name}'s avatar`}
+                    />
+                    <AvatarFallback className="w-8 h-8 bg-gray-100 flex items-center justify-center text-sm text-gray-600 font-bold">
+                      {userInfo.name
+                        .split(" ")
+                        .map((word) => word[0])
+                        .join("")
+                        .substring(0, 2)
+                        .toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span
+                    className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 
              overflow-hidden text-ellipsis whitespace-nowrap max-w-[120px]"
-              >
-                {userInfo.name}
-              </span>
-            </div>
+                  >
+                    {userInfo.name}
+                  </span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Update Profile </p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         )}
       </header>
