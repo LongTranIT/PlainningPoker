@@ -82,12 +82,12 @@ export const cardData: CardData[] = [
   {
     id: 15,
     imageUrl: "/avatars/Anime.png",
-    title: "Anime",
+    title: "Ken",
     bgColor: "bg-rose-100",
   },
   {
     id: 16,
-    imageUrl: "/avatars/Mi.jpg",
+    imageUrl: "/avatars/MI.jpg",
     title: "MI",
     bgColor: "bg-yellow-50",
   },
