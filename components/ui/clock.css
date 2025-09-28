@@ -1,0 +1,28 @@
+.react-clock {
+  border: none !important;              /* Remove border */
+  background: transparent !important;   /* No background */
+}
+
+.react-clock__face {
+  background: transparent !important;   /* Transparent face */
+  border: none !important;              /* Remove face border */
+}
+
+.react-clock__hand__body {
+  background-color: #111827;            /* Black hour & minute hands */
+  border-radius: 2px;
+}
+
+.react-clock__second-hand__body {
+  background-color: #ef4444;            /* Red second hand */
+}
+
+.react-clock__mark__body {
+  background-color: rgba(0, 0, 0, 0.4); /* Light gray tick marks */
+}
+
+.react-clock__number {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #111827;                       /* Dark numbers */
+}
