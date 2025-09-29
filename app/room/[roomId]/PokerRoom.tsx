@@ -290,7 +290,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
           <div className="flex items-center gap-6 overflow-auto">
             <CopyButton
               textCopy={window.location.origin + ROUTES.ROOM_DETAIL(roomId)}
-              title="RoomID"
+              title="Room URL"
             />
             <ObserverSwitch
               checked={userPlayer?.isObserver || false}
