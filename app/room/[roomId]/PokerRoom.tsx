@@ -41,7 +41,7 @@ const nameOfPlayer = nameOfFactory<Player>();
 export function PokerRoom({ roomId }: PokerRoomProps) {
   const router = useRouter();
   const { room, getIsRevealed, getPlayer } = useRoomStore();
-  const { hydrated, userInfo } = useUserStore();
+  const { hydrated, userInfo, setUserInfo } = useUserStore();
 
   const isRevealed = getIsRevealed();
   const userPlayer = getPlayer(userInfo?.id || "");
@@ -70,7 +70,12 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
         }
 
         // Add user to room if not already present
-        await addPlayer(userInfo.id, userInfo.name, userInfo.avatar);
+        await addPlayer(
+          userInfo.id,
+          userInfo.name,
+          userInfo.avatar,
+          !!userInfo.isObserver
+        );
       } catch (error) {
         toast.error("Error checking room: " + error);
       }
@@ -207,7 +212,12 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
     }
   };
 
-  const addPlayer = async (playerId: string, name: string, avatar: string) => {
+  const addPlayer = async (
+    playerId: string,
+    name: string,
+    avatar: string,
+    isObserver: boolean
+  ) => {
     try {
       const playerRef = ref(db, dbPaths.player(roomId, playerId));
       const snapshot = await get(playerRef);
@@ -225,7 +235,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
         avatar: avatar,
         vote: null,
         isAdmin: false,
-        isObserver: false,
+        isObserver,
         joinedAt: now,
       };
       await set(playerRef, player);
@@ -242,6 +252,7 @@ export function PokerRoom({ roomId }: PokerRoomProps) {
       [nameOfPlayer("isObserver")]: isObserver,
       [nameOfPlayer("vote")]: null,
     });
+    setUserInfo(userInfo.name, userInfo.avatar, isObserver);
     toast.success(`You are now an ${isObserver ? "observer" : "participant"}.`);
   };
 
