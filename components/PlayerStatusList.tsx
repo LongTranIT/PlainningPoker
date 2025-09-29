@@ -255,14 +255,14 @@ export default function PlayerSections({
         return;
       }
 
-      // Remove admin from current user
-      await update(ref(db, dbPaths.player(roomId, currentUserId)), {
-        isAdmin: false,
-      });
-
       // Assign admin to selected player
       await update(ref(db, dbPaths.player(roomId, playerId)), {
         isAdmin: true,
+      });
+
+      // Remove admin from current user
+      await update(ref(db, dbPaths.player(roomId, currentUserId)), {
+        isAdmin: false,
       });
 
       toast.success("Admin role transferred successfully");
