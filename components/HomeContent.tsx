@@ -113,6 +113,7 @@ export default function HomeContent() {
       await router.push(ROUTES.ROOM_DETAIL(roomId));
     } catch (error) {
       toast.error("Error joining room: " + error);
+      setIsJoining(false);
     } finally {
       // setIsJoining(false);
     }
