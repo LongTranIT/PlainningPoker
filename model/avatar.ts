@@ -14,13 +14,13 @@ export const cardData: CardData[] = [
   },
   {
     id: 2,
-    imageUrl: "/avatars/Liam.png",
+    imageUrl: "/avatars/Liam.jpg",
     title: "Liam",
     bgColor: "bg-green-100",
   },
   {
     id: 3,
-    imageUrl: "/avatars/Marc.png",
+    imageUrl: "/avatars/Marc.jpg",
     title: "Marc",
     bgColor: "bg-blue-100",
   },
@@ -62,26 +62,26 @@ export const cardData: CardData[] = [
   },
   {
     id: 10,
-    imageUrl: "/avatars/Max.png",
+    imageUrl: "/avatars/Max.jpg",
     title: "Max",
     bgColor: "bg-slate-300",
   },
 
   {
     id: 13,
-    imageUrl: "/avatars/AJ.png",
+    imageUrl: "/avatars/AJ.jpg",
     title: "AJ",
     bgColor: "bg-amber-100",
   },
   {
     id: 14,
-    imageUrl: "/avatars/FEL.png",
+    imageUrl: "/avatars/FEL.jpg",
     title: "FEL",
     bgColor: "bg-indigo-200",
   },
   {
     id: 15,
-    imageUrl: "/avatars/Anime.png",
+    imageUrl: "/avatars/Anime.jpg",
     title: "Ken",
     bgColor: "bg-rose-100",
   },
