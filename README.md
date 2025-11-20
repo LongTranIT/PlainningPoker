@@ -1,7 +1,9 @@
 # Planning Poker - Agile Estimation Made Easy
 
 Planning Poker is a real-time, collaborative estimation tool designed for agile teams. It helps teams estimate work items through consensus-based discussions using the Planning Poker technique.
+![Plaining Room](./public/img/room.png)
 
+**Demo**: https://plainning-poker-rho.vercel.app/
 ## 🎮 Key Features
 
 ### User Experience
@@ -44,14 +46,26 @@ Planning Poker is a real-time, collaborative estimation tool designed for agile 
 2. **Set up Firebase**
    - Create a Firebase project
    - Enable Realtime Database
+   - Enable Anonymous Authentication
    - Add your Firebase config to `.env.local`
+   - Deploy security rules using `database.rules.json`
 
-3. **Run the Development Server**
+3. **Configure Database Rules**
+   ```bash
+   # Deploy Firebase Realtime Database rules
+   firebase deploy --only database
+   ```
+   The `database.rules.json` file contains security rules that:
+   - Allow anonymous users to create and join rooms
+   - Restrict access to room data
+   - Enable real-time data synchronization with proper validation
+
+4. **Run the Development Server**
    ```bash
    npm run dev
    ```
 
-4. **Open the App**
+5. **Open the App**
    - Visit [http://localhost:3000](http://localhost:3000)
    - Create your first poker room!
 

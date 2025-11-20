@@ -1,0 +1,22 @@
+{
+  "rules": {
+    ".read": "false",
+    ".write": "false",
+    "rooms": {
+      "$roomId": {
+        ".read": "auth != null",
+        ".write": "auth != null && !data.exists()",
+        "players": {
+          "$playerId": {
+            ".write": "auth != null && (auth.uid === $playerId || root.child('rooms').child($roomId).child('players').child(auth.uid).child('isAdmin').val() === true)",
+            ".read": "auth != null"
+          }
+        },
+        "isRevealed": {
+          ".write": "auth != null && root.child('rooms').child($roomId).child('players').child(auth.uid).child('isAdmin').val() === true",
+          ".read": "auth != null"
+        }
+      }
+    }
+  }
+}
